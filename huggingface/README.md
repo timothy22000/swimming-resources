@@ -24,6 +24,14 @@ configs:
 
 # Swimming Resources Database
 
+[![GitHub source](https://img.shields.io/badge/GitHub-timothy22000%2Fswimming--resources-181717?logo=github&logoColor=white)](https://github.com/timothy22000/swimming-resources)
+[![License: CC BY 4.0](https://img.shields.io/badge/license-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![Entries](https://img.shields.io/badge/entries-410-brightgreen.svg)](https://github.com/timothy22000/swimming-resources/blob/main/data/swimming_resources.json)
+[![Categories](https://img.shields.io/badge/categories-20-blue.svg)](https://github.com/timothy22000/swimming-resources#categories)
+[![Version](https://img.shields.io/badge/version-1.0.0-orange.svg)](https://github.com/timothy22000/swimming-resources/blob/main/CHANGELOG.md)
+
+> Source repository: **[github.com/timothy22000/swimming-resources](https://github.com/timothy22000/swimming-resources)** - the GitHub repo is the canonical source. Corrections, additions, and dead-link reports go through GitHub issues or pull requests; the Parquet here is regenerated from those changes.
+
 The Swimming Resources Database is an open dataset of 410 verified swimming
 resources across 20 categories, covering governance, learn-to-swim programs,
 technique, training, apps, books, coaching education, sports science, news,
