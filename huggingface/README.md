@@ -4,7 +4,7 @@ pretty_name: Swimming Resources Database
 language:
   - en
 task_categories:
-  - information-retrieval
+  - text-retrieval
   - question-answering
   - text-classification
 tags:
