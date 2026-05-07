@@ -44,15 +44,46 @@ researchers, and ML systems can build on it instead of re-doing the search.
 
 ## Dataset Files
 
-This Hugging Face dataset repo should contain:
+This Hugging Face dataset repo contains:
 
 | File | Description |
 | --- | --- |
 | `swimming_resources.parquet` | Primary Hugging Face dataset file. |
 | `README.md` | This dataset card. |
 
-The source GitHub repository also includes JSON, JSONL, CSV, Parquet, and JSON
-Schema outputs generated from Python source files.
+## Source Data
+
+The canonical source of truth for this dataset is the GitHub repository:
+
+**[github.com/timothy22000/swimming-resources](https://github.com/timothy22000/swimming-resources)**
+
+Each entry is hand-curated as a Python literal in
+[`scripts/data_part1.py`](https://github.com/timothy22000/swimming-resources/blob/main/scripts/data_part1.py)
+through `data_part9.py`. The build pipeline at
+[`scripts/build_dataset.py`](https://github.com/timothy22000/swimming-resources/blob/main/scripts/build_dataset.py)
+validates every record against
+[`data/schema.json`](https://github.com/timothy22000/swimming-resources/blob/main/data/schema.json)
+and emits four formats: pretty-printed JSON, JSONL, CSV, and the Parquet file
+shipped here. The GitHub repository keeps all four output formats checked in
+alongside the schema, so the same dataset is available without going through
+`datasets`.
+
+Two scheduled workflows in the source repository keep the dataset honest:
+
+- [`validate.yml`](https://github.com/timothy22000/swimming-resources/blob/main/.github/workflows/validate.yml)
+  re-runs the build and schema validation on every pull request and push to
+  `main`.
+- [`link-check.yml`](https://github.com/timothy22000/swimming-resources/blob/main/.github/workflows/link-check.yml)
+  runs weekly, fetches every URL in the dataset, and opens an issue listing any
+  that no longer resolve.
+
+Corrections, additions, and dead-link reports should go through GitHub
+([issues](https://github.com/timothy22000/swimming-resources/issues) or
+[pull requests](https://github.com/timothy22000/swimming-resources/pulls))
+rather than the Hugging Face discussions tab, so that fixes flow through the
+validation pipeline before the Parquet here is updated. The contributor
+workflow is documented in
+[`CONTRIBUTING.md`](https://github.com/timothy22000/swimming-resources/blob/main/CONTRIBUTING.md).
 
 ## Loading
 
