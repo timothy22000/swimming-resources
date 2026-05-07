@@ -150,6 +150,7 @@ def write_json(records: list[dict[str, Any]]) -> Path:
             "name": "Swimming Resources Database",
             "version": "1.0.0",
             "license": "CC-BY-4.0",
+            "author": "Timothy Sum",
             "homepage": "https://github.com/timothy22000/swimming-resources",
             "total": len(records),
             "categories": [

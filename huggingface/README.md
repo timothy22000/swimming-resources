@@ -34,6 +34,14 @@ The dataset is intended for retrieval-augmented generation, recommendation
 systems, knowledge bases, directory websites, and research workflows that need
 structured information about the swimming ecosystem.
 
+## Background
+
+I started collecting these resources while learning to swim as an adult. The
+useful material was scattered across forums, blogs, and outdated directories,
+with frequent rebrands and dead links. This dataset is the index I wish had
+existed when I started, cleaned up and released so other swimmers, coaches,
+researchers, and ML systems can build on it instead of re-doing the search.
+
 ## Dataset Files
 
 This Hugging Face dataset repo should contain:
@@ -118,15 +126,15 @@ The database content is released under Creative Commons Attribution 4.0
 International (CC BY 4.0). Build scripts in the source repository are released
 under the MIT License.
 
-Please attribute the dataset as "Swimming Resources Database Contributors" and
-link to the source repository and this Hugging Face dataset page.
+Please attribute the dataset to Timothy Sum and link to the source repository
+and this Hugging Face dataset page.
 
 ## Citation
 
 ```bibtex
 @misc{swimming_resources_db_2026,
   title  = {Swimming Resources Database},
-  author = {Swimming Resources Database Contributors},
+  author = {Timothy Sum},
   year   = {2026},
   url    = {https://github.com/timothy22000/swimming-resources},
   note   = {Open-source index of swimming resources, v1.0.0}

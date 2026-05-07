@@ -19,6 +19,26 @@ bases, and recommendation systems.
 
 ---
 
+## Background
+
+I started collecting these resources while learning to swim as an adult. What
+was meant to be a few bookmarks turned into a sprawling pile of links: drills,
+certifications, books, governing bodies, training plans, gear reviews, dead
+domains, rebrands. Most of it was scattered across forums, half-broken blogs,
+and inconsistent directories.
+
+This repository is the index I wish had existed when I started. Every entry is
+verified, categorized, and structured so that anyone picking up the sport (or
+returning to it after years away) does not have to redo the search. It also
+doubles as a clean, structured corpus for retrieval pipelines and coaching
+assistants, since the same gap exists in machine-readable form.
+
+If you are a swimmer, coach, parent, or researcher and you spot something
+missing or outdated, please open an issue or pull request - the value of a
+directory is proportional to how current it stays.
+
+---
+
 ## Quick start
 
 ### Use the dataset
@@ -220,7 +240,7 @@ If you use this dataset in academic work, please cite:
 ```bibtex
 @misc{swimming_resources_db_2026,
   title  = {Swimming Resources Database},
-  author = {Swimming Resources Database Contributors},
+  author = {Timothy Sum},
   year   = {2026},
   url    = {https://github.com/timothy22000/swimming-resources},
   note   = {Open-source index of swimming resources, v1.0.0}
