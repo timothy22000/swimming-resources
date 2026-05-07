@@ -1,0 +1,100 @@
+name: Validate dataset
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install validation dependencies
+        run: python -m pip install --upgrade pip pandas pyarrow jsonschema
+
+      - name: Rebuild dataset
+        run: python scripts/build_dataset.py
+
+      - name: Ensure generated text outputs are current
+        run: |
+          git diff --exit-code -- \
+            data/swimming_resources.json \
+            data/swimming_resources.jsonl \
+            data/swimming_resources.csv \
+            data/schema.json
+
+      - name: Validate generated files against schema
+        run: |
+          python - <<'PY'
+          import csv
+          import json
+          from pathlib import Path
+
+          import pandas as pd
+          from jsonschema import Draft7Validator, FormatChecker
+
+          root = Path(".")
+          schema = json.loads((root / "data/schema.json").read_text(encoding="utf-8"))
+          canonical = json.loads((root / "data/swimming_resources.json").read_text(encoding="utf-8"))
+          records = canonical["resources"]
+
+          validator = Draft7Validator(schema, format_checker=FormatChecker())
+          errors = []
+          for index, record in enumerate(records, start=1):
+              for error in validator.iter_errors(record):
+                  path = ".".join(str(part) for part in error.path) or "<record>"
+                  errors.append(f"{record.get('id', index)} {path}: {error.message}")
+
+          ids = [record["id"] for record in records]
+          duplicate_ids = sorted({rid for rid in ids if ids.count(rid) > 1})
+          if duplicate_ids:
+              errors.append(f"duplicate ids: {', '.join(duplicate_ids)}")
+
+          total = canonical.get("metadata", {}).get("total")
+          if total != len(records):
+              errors.append(f"metadata.total is {total}, expected {len(records)}")
+
+          category_total = sum(category["count"] for category in canonical["metadata"]["categories"])
+          if category_total != len(records):
+              errors.append(f"category counts sum to {category_total}, expected {len(records)}")
+
+          jsonl_records = [
+              json.loads(line)
+              for line in (root / "data/swimming_resources.jsonl").read_text(encoding="utf-8").splitlines()
+              if line.strip()
+          ]
+          if jsonl_records != records:
+              errors.append("JSONL records do not match canonical JSON resources")
+
+          with (root / "data/swimming_resources.csv").open(encoding="utf-8", newline="") as handle:
+              csv_count = sum(1 for _ in csv.DictReader(handle))
+          if csv_count != len(records):
+              errors.append(f"CSV has {csv_count} rows, expected {len(records)}")
+
+          parquet_count = len(pd.read_parquet(root / "data/swimming_resources.parquet"))
+          if parquet_count != len(records):
+              errors.append(f"Parquet has {parquet_count} rows, expected {len(records)}")
+
+          if errors:
+              print("Schema validation failed:")
+              for error in errors:
+                  print(f"  - {error}")
+              raise SystemExit(1)
+
+          print(f"Validated {len(records)} records against data/schema.json.")
+          PY

@@ -1,0 +1,57 @@
+name: "Resource: Update / Correct"
+description: Report a correction for an existing resource.
+title: "Update resource: "
+labels:
+  - resource-update
+body:
+  - type: input
+    id: resource_id
+    attributes:
+      label: Resource ID
+      description: The stable `id` from the dataset.
+      placeholder: "gov-001"
+    validations:
+      required: true
+  - type: input
+    id: current_url
+    attributes:
+      label: Current URL
+      description: Existing URL, if relevant.
+      placeholder: "https://www.example.org"
+    validations:
+      required: false
+  - type: checkboxes
+    id: update_type
+    attributes:
+      label: What needs updating?
+      options:
+        - label: Name
+        - label: URL
+        - label: Description
+        - label: Status (`active`, `rebranded`, or `defunct`)
+        - label: Pricing
+        - label: Region or language
+        - label: Tags or notes
+  - type: textarea
+    id: proposed_change
+    attributes:
+      label: Proposed change
+      description: Describe the correction as specifically as possible.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source or evidence
+      description: Link to an official source when available.
+      placeholder: "https://www.example.org/about"
+    validations:
+      required: false
+  - type: input
+    id: verified
+    attributes:
+      label: Verified month
+      description: Month when you confirmed the corrected URL or source.
+      placeholder: "2026-05"
+    validations:
+      required: false

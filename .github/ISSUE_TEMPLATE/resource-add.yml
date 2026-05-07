@@ -1,0 +1,117 @@
+name: "Resource: Add"
+description: Propose a new swimming resource for the dataset.
+title: "Add resource: "
+labels:
+  - resource-add
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping expand the Swimming Resources Database. Please verify the URL before submitting.
+  - type: input
+    id: name
+    attributes:
+      label: Resource name
+      description: Official display name.
+      placeholder: "World Aquatics"
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: URL
+      description: Canonical resource URL.
+      placeholder: "https://www.example.org"
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - governing_bodies
+        - learn_to_swim
+        - technique
+        - youtube
+        - training_plans
+        - apps
+        - books
+        - certifications
+        - science
+        - news
+        - podcasts
+        - gear
+        - open_water
+        - triathlon
+        - masters
+        - para
+        - drowning_prevention
+        - records
+        - college
+        - recruiting
+    validations:
+      required: true
+  - type: input
+    id: type
+    attributes:
+      label: Type
+      description: What kind of resource is it?
+      placeholder: "Federation, app, book, YouTube channel, camp..."
+    validations:
+      required: true
+  - type: input
+    id: audience
+    attributes:
+      label: Audience
+      placeholder: "Age-group swimmers, coaches, triathletes, public..."
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: One concise sentence describing the resource.
+    validations:
+      required: true
+  - type: dropdown
+    id: pricing
+    attributes:
+      label: Pricing
+      options:
+        - free
+        - paid
+        - freemium
+        - mixed
+        - varies
+    validations:
+      required: true
+  - type: input
+    id: region
+    attributes:
+      label: Region
+      placeholder: "global, USA, Europe, Australia..."
+    validations:
+      required: true
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      description: ISO 639-1 code.
+      placeholder: "en"
+    validations:
+      required: true
+  - type: input
+    id: verified
+    attributes:
+      label: Verified month
+      description: Month when you confirmed the URL loads.
+      placeholder: "2026-05"
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Rebrand history, founding year, source details, or caveats.
+    validations:
+      required: false

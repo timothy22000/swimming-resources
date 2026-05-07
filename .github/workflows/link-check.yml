@@ -1,0 +1,160 @@
+name: Link check
+
+on:
+  schedule:
+    - cron: "23 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Check dataset URLs
+        id: check
+        continue-on-error: true
+        run: |
+          python - <<'PY'
+          import concurrent.futures
+          import json
+          import socket
+          import ssl
+          import urllib.error
+          import urllib.request
+          from datetime import date
+          from pathlib import Path
+
+          TIMEOUT_SECONDS = 20
+          MAX_WORKERS = 16
+          REPORT = Path("link-check-report.md")
+          HEADERS = {
+              "User-Agent": "swimming-resources-link-check/1.0 (+https://github.com/timothy22000/swimming-resources)",
+              "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          }
+
+          payload = json.loads(Path("data/swimming_resources.json").read_text(encoding="utf-8"))
+          resources = payload["resources"]
+
+          def request_url(url, method):
+              request = urllib.request.Request(url, method=method, headers=HEADERS)
+              with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
+                  return response.getcode(), response.geturl()
+
+          def check(resource):
+              url = resource["url"]
+              try:
+                  status, final_url = request_url(url, "HEAD")
+                  if 200 <= status < 400:
+                      return {"ok": True, "resource": resource, "status": status, "final_url": final_url}
+              except urllib.error.HTTPError as error:
+                  if error.code not in {403, 405, 406, 429, 500, 501}:
+                      return {"ok": False, "resource": resource, "error": f"HTTP {error.code}"}
+              except (urllib.error.URLError, TimeoutError, socket.timeout, ssl.SSLError) as error:
+                  head_error = error
+              except Exception as error:
+                  head_error = error
+              else:
+                  head_error = RuntimeError(f"HTTP {status}")
+
+              try:
+                  status, final_url = request_url(url, "GET")
+                  if 200 <= status < 400:
+                      return {"ok": True, "resource": resource, "status": status, "final_url": final_url}
+                  return {"ok": False, "resource": resource, "error": f"HTTP {status}"}
+              except urllib.error.HTTPError as error:
+                  return {"ok": False, "resource": resource, "error": f"HTTP {error.code}"}
+              except (urllib.error.URLError, TimeoutError, socket.timeout, ssl.SSLError) as error:
+                  return {"ok": False, "resource": resource, "error": str(getattr(error, "reason", error))}
+              except Exception as error:
+                  return {"ok": False, "resource": resource, "error": str(error or head_error)}
+
+          with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+              results = list(executor.map(check, resources))
+
+          failures = [result for result in results if not result["ok"]]
+          checked = len(results)
+          lines = [
+              f"# Link check report - {date.today().isoformat()}",
+              "",
+              f"Checked {checked} URLs from `data/swimming_resources.json`.",
+              "",
+          ]
+
+          if failures:
+              lines.extend([
+                  f"Found {len(failures)} URL(s) that need review.",
+                  "",
+                  "| ID | Name | URL | Error |",
+                  "| --- | --- | --- | --- |",
+              ])
+              for failure in failures:
+                  resource = failure["resource"]
+                  def esc(value):
+                      return str(value).replace("|", "\\|").replace("\n", " ")
+                  lines.append(
+                      f"| `{esc(resource['id'])}` | {esc(resource['name'])} | "
+                      f"{esc(resource['url'])} | {esc(failure['error'])} |"
+                  )
+          else:
+              lines.append("No broken links detected.")
+
+          REPORT.write_text("\n".join(lines) + "\n", encoding="utf-8")
+          print(REPORT.read_text(encoding="utf-8"))
+          raise SystemExit(1 if failures else 0)
+          PY
+
+      - name: Upload link-check report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: link-check-report
+          path: link-check-report.md
+          if-no-files-found: ignore
+
+      - name: Open issue for broken links
+        if: steps.check.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const report = fs.readFileSync("link-check-report.md", "utf8");
+            const title = `Broken links detected in swimming resources (${new Date().toISOString().slice(0, 10)})`;
+            try {
+              await github.rest.issues.getLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: "broken-link"
+              });
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: "broken-link",
+                color: "d73a4a",
+                description: "Dataset URL needs review"
+              });
+            }
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body: `${report}\n\nGenerated by the scheduled link-check workflow.`,
+              labels: ["broken-link"]
+            });
+
+      - name: Fail workflow when broken links are found
+        if: steps.check.outcome == 'failure'
+        run: exit 1

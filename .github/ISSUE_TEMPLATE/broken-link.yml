@@ -1,0 +1,58 @@
+name: "Broken link"
+description: Report a dataset URL that no longer resolves.
+title: "Broken link: "
+labels:
+  - broken-link
+body:
+  - type: input
+    id: resource_id
+    attributes:
+      label: Resource ID
+      description: The stable `id` from the dataset.
+      placeholder: "app-001"
+    validations:
+      required: true
+  - type: input
+    id: broken_url
+    attributes:
+      label: Broken URL
+      placeholder: "https://www.example.org"
+    validations:
+      required: true
+  - type: dropdown
+    id: observed_result
+    attributes:
+      label: What happened?
+      options:
+        - 404 or not found
+        - Domain expired
+        - Redirect loop
+        - Timeout
+        - Certificate or security error
+        - Rebranded or moved
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: replacement_url
+    attributes:
+      label: Suggested replacement URL
+      description: Leave blank if you do not know a replacement.
+      placeholder: "https://www.example.org/new-page"
+    validations:
+      required: false
+  - type: input
+    id: checked_on
+    attributes:
+      label: Checked on
+      description: Date or month when you observed the problem.
+      placeholder: "2026-05-07"
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Include redirects, screenshots, or other context.
+    validations:
+      required: false
